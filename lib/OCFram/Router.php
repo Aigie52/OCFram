@@ -21,6 +21,7 @@ class Router
         foreach($this->routes as $route) {
             // Si la route correspond à l'URL
             if(($varsValues = $route->match($url)) !== false) {
+
                 // Si elle a des variables
                 if($route->hasVars()) {
                     $varsNames = $route->varsNames();
@@ -41,8 +42,7 @@ class Router
 
                 return $route;
             }
-
-            throw new \RuntimeException('Aucune route ne correspond à l\'URL', self::NO_ROUTE);
         }
+            throw new \RuntimeException('Aucune route ne correspond à l\'URL', self::NO_ROUTE);
     }
 }
