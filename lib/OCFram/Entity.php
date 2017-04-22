@@ -11,6 +11,8 @@ namespace OCFram;
 
 abstract class Entity implements \ArrayAccess
 {
+    use Hydrator;
+
     protected $erreurs = [],
               $id;
 
@@ -28,7 +30,7 @@ abstract class Entity implements \ArrayAccess
 
     public function erreurs()
     {
-        return $this->erreur;
+        return $this->erreurs;
     }
 
     public function id()
@@ -39,17 +41,6 @@ abstract class Entity implements \ArrayAccess
     public function setId($id)
     {
         $this->id = (int) $id;
-    }
-
-    public function hydrate(array $donnees)
-    {
-        foreach ($donnees as $attribut => $valeur) {
-            $methode = 'set'.ucfirst($attribut);
-
-            if(is_callable([$this, $methode])) {
-                $this->$methode($valeur);
-            }
-        }
     }
 
     public function offsetGet($var)

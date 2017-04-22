@@ -2,6 +2,8 @@
 
 namespace Model;
 
+use Entity\News;
+
 class NewsManagerPDO extends NewsManager
 {
 
@@ -51,5 +53,38 @@ class NewsManagerPDO extends NewsManager
         }
 
         return null;
+    }
+
+    public function count()
+    {
+        return $this->dao->query('SELECT COUNT(*) FROM news')->fetchColumn();
+    }
+
+    public function add(News $news)
+    {
+        $requete = $this->dao->prepare('INSERT INTO news SET auteur = :auteur, titre = :titre, contenu = :contenu, dateAjout = NOW(), dateModif = NOW()');
+
+        $requete->bindValue(':titre', $news->titre());
+        $requete->bindValue(':auteur', $news->auteur());
+        $requete->bindValue(':contenu', $news->contenu());
+
+        $requete->execute();
+    }
+
+    public function modify(News $news)
+    {
+        $requete = $this->dao->prepare('UPDATE news SET auteur = :auteur, titre = :titre, contenu = :contenu, dateModif = NOW() WHERE id = :id');
+
+        $requete->bindValue(':titre', $news->titre());
+        $requete->bindValue(':auteur', $news->auteur());
+        $requete->bindValue(':contenu', $news->contenu());
+        $requete->bindValue(':id', $news->id(), \PDO::PARAM_INT);
+
+        $requete->execute();
+    }
+
+    public function delete($id)
+    {
+        $this->dao->exec('DELETE FROM news WHERE id = ' . (int) $id);
     }
 }
