@@ -21,7 +21,7 @@ abstract class BackController extends ApplicationComponent
     $this->setAction($action);
     $this->setView($action);
 
-    $this->cache = new Cache();
+    $this->cache = new DataCache();
   }
 
   public function execute()

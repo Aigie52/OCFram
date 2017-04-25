@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <cacheable-items>
-    <item name="News" lifetime="1 week" />
-    <item name="Comment" lifetime="1 day" />
-    <item name="View" lifetime="1 month" />
+    <item name="news" lifetime="1 week" />
+    <item name="comments" lifetime="1 day" />
+    <item name="view" lifetime="1 month" />
 </cacheable-items>

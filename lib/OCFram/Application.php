@@ -8,6 +8,7 @@ abstract class Application
   protected $name;
   protected $user;
   protected $config;
+  protected $viewCache;
 
   public function __construct()
   {
@@ -17,6 +18,8 @@ abstract class Application
     $this->config = new Config($this);
 
     $this->name = '';
+
+    $this->viewCache = new ViewCache();
   }
 
   public function getController()
@@ -60,6 +63,14 @@ abstract class Application
     // On ajoute les variables de l'URL au tableau $_GET.
     $_GET = array_merge($_GET, $matchedRoute->vars());
 
+    if($view = $this->viewCache->read('View', $this->name.'_'.$matchedRoute->module().'_'.$matchedRoute->action())) {
+        $this->httpResponse()->send($view);
+    }
+
+    if($matchedRoute->action() === 'index') {
+        $this->viewCache->createCache('View', $this->name.'_'.$matchedRoute->module().'_'.$matchedRoute->action());
+    }
+
     // On instancie le contrôleur.
     $controllerClass = 'App\\'.$this->name.'\\Modules\\'.$matchedRoute->module().'\\'.$matchedRoute->module().'Controller';
     return new $controllerClass($this, $matchedRoute->module(), $matchedRoute->action());
@@ -90,5 +101,10 @@ abstract class Application
   public function user()
   {
     return $this->user;
+  }
+
+  public function viewCache()
+  {
+      return $this->viewCache;
   }
 }

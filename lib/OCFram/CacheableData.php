@@ -7,7 +7,7 @@ trait CacheableData
 {
     protected function updateCache($id)
     {
-        $cache = new Cache();
+        $cache = new DataCache();
         $cache->delete($this->entityName, $id);
     }
 }

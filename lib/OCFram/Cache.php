@@ -5,28 +5,28 @@ namespace OCFram;
 
 class Cache
 {
-    private $dirname;
-    private $duration;
-    private $buffer;
-    private $type;
+    protected $dirname;
+    protected $duration;
+    protected $type;
+    protected $filename;
 
     /**
      * @param string $type
      * @return Cache
      */
-    private function setType($type)
+    protected function setType($type)
     {
         if(!is_string($type)) {
             throw new \InvalidArgumentException('Le type doit être une chaîne de caractères valide.');
         }
-        $this->type = $type;
+        $this->type = strtolower($type);
         return $this;
     }
 
     /**
      * @return Cache
      */
-    private function setDirname()
+    protected function setDirname()
     {
         $typeDir = ($this->type === 'view') ? 'views' : 'data';
         $dir = __DIR__.'\\..\\..\\tmp\\cache\\'.$typeDir;
@@ -41,19 +41,24 @@ class Cache
      * @param int $id
      * @return string
      */
-    private function setFilename($id)
+    protected function setFilename($name)
     {
-        if($this->type === 'Comments') {
-            return $this->type.'-news-'.(int) $id;
+        if(!is_string($name)) {
+            throw new \InvalidArgumentException('Le nom de la vue doit être une chaine de caractères valide.');
         }
-        return $this->type.'-'.(int) $id;
+        return $this->filename = strtolower($name);
+    }
+
+    public function filename()
+    {
+        return $this->filename;
     }
 
     /**
      * @param string $duration
      * @return Cache
      */
-    private function setDuration($duration)
+    protected function setDuration($duration)
     {
         // Si la durée est explicitement précisée, alors on l'applique
         if(is_string($duration)) {
@@ -77,7 +82,7 @@ class Cache
     /**
      * @return int timestamp
      */
-    private function expiresAt()
+    protected function expiresAt()
     {
         $lifetime = \DateInterval::createFromDateString($this->duration);
         $expiresAt = new \DateTime();
@@ -87,19 +92,21 @@ class Cache
     }
 
     /**
-     * Créer le cache en fonction du type (vue/news), de l'id pour un fichier unique, du contenu et de la durée (facultatif)
+     * Créer le cache en fonction du type (vue), du nom de la vue, du contenu et de la durée (facultatif)
      * @param string $type
-     * @param int $id
+     * @param string $name
      * @param $content
      * @param null|string $duration
      */
-    public function createCache($type, $id, $content, $duration = null)
+    public function createCache($type, $name, $content, $duration = null)
     {
         $this
             ->setType($type)
             ->setDirname()
             ->setDuration($duration)
-            ->write($this->setFilename($id), $content);
+            ->setFilename($name);
+
+        $this->write($this->filename, $content);
     }
 
     /**
@@ -108,10 +115,9 @@ class Cache
      * @param $content
      * @return bool|int
      */
-    private function write($filename, $content)
+    protected function write($filename, $content)
     {
         $file = $this->dirname.'\\'.$filename;
-
         return file_put_contents($file, serialize([$this->expiresAt(), $content]));
     }
 
@@ -121,12 +127,12 @@ class Cache
      * @param $id
      * @return bool
      */
-    public function read($type, $id)
+    public function read($type, $name)
     {
         $filename = $this
             ->setType($type)
             ->setDirname()
-            ->setFilename($id);
+            ->setFilename($name);
 
         $file = $this->dirname.'\\'.$filename;
 
@@ -139,7 +145,7 @@ class Cache
 
         // Si la date de validité du fichier est dépassé, alors on le supprime
         if($expiresAt < time()) {
-            $this->delete($filename);
+            $this->delete($type, $name);
             return false;
         }
 
@@ -152,12 +158,12 @@ class Cache
      * @param $id int
      * @internal param $filename
      */
-    public function delete($type, $id)
+    public function delete($type, $name)
     {
         $filename = $this
             ->setType($type)
             ->setDirname()
-            ->setFilename($id);
+            ->setFilename($name);
 
         $file = $this->dirname.'\\'.$filename;
 

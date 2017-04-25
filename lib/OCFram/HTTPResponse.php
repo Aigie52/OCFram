@@ -26,8 +26,14 @@ class HTTPResponse extends ApplicationComponent
     $this->send();
   }
   
-  public function send()
+  public function send($view = null)
   {
+      if(null !== $view)
+      {
+          $this->page = new Page($this->app);
+          exit($this->page->getGeneratedPage($view));
+      }
+
     // Actuellement, cette ligne a peu de sens dans votre esprit.
     // Promis, vous saurez vraiment ce qu'elle fait d'ici la fin du chapitre
     // (bien que je suis sûr que les noms choisis sont assez explicites !).
