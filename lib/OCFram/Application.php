@@ -63,11 +63,14 @@ abstract class Application
     // On ajoute les variables de l'URL au tableau $_GET.
     $_GET = array_merge($_GET, $matchedRoute->vars());
 
+    // On vérifie si la vue index est déjà en cache
     if($view = $this->viewCache->read('View', $this->name.'_'.$matchedRoute->module().'_'.$matchedRoute->action())) {
+        // Si c'est le cas, on ne passe pas par le contrôleur
         $this->httpResponse()->send($view);
     }
 
-    if($matchedRoute->action() === 'index') {
+    // Si la page demandée est le frontend index
+    if($this->name === 'Frontend' && $matchedRoute->action() === 'index') {
         $this->viewCache->createCache('View', $this->name.'_'.$matchedRoute->module().'_'.$matchedRoute->action());
     }
 

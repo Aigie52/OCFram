@@ -28,6 +28,7 @@ class HTTPResponse extends ApplicationComponent
   
   public function send($view = null)
   {
+      // Si la vue est déjà en cache, alors on crée un nouvel objet page auquel on passe le contenu de notre vue
       if(null !== $view)
       {
           $this->page = new Page($this->app);

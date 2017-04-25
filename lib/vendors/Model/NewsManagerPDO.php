@@ -15,6 +15,7 @@ class NewsManagerPDO extends NewsManager
         $requete->bindValue(':contenu', $news->contenu());
 
         $requete->execute();
+        $this->updateCache($news->id());
     }
 
     public function count()
@@ -24,8 +25,8 @@ class NewsManagerPDO extends NewsManager
 
     public function delete($id)
     {
-        $this->updateCache($id);
         $this->dao->exec('DELETE FROM news WHERE id = ' . (int)$id);
+        $this->updateCache($id);
     }
 
     public function getList($debut = -1, $limite = -1)
@@ -80,6 +81,5 @@ class NewsManagerPDO extends NewsManager
 
         $requete->execute();
         $this->updateCache($news->id());
-
     }
 }

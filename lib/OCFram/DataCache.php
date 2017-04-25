@@ -11,7 +11,7 @@ class DataCache extends Cache
      */
     protected function setFilename($id)
     {
-        $this->filename = ($this->type = 'news') ? 'news-'.(int) $id : 'comments-news-'. (int) $id;
+        $this->filename = ($this->type === 'news') ? 'news-'.(int) $id : 'comments-news-'. (int) $id;
         return $this->filename;
     }
 
@@ -55,7 +55,7 @@ class DataCache extends Cache
 
         // Si la date de validité du fichier est dépassé, alors on le supprime
         if($expiresAt < time()) {
-            $this->delete($type, $id);
+            $this->deleteExpired($type, $id);
             return false;
         }
 
@@ -63,12 +63,49 @@ class DataCache extends Cache
     }
 
     /**
-     * Supprime le fichier
+     * Supprime le fichier en cas d'ajout, de modification, de suppression
+     * Supprime aussi les autres fichiers concernés par l'ajout, la modification ou la suppression d'une news
      * @param $type string
      * @param $id int
      * @internal param $filename
      */
     public function delete($type, $id)
+    {
+        $files = [];
+
+        $filename = $this
+            ->setType($type)
+            ->setDirname()
+            ->setFilename($id);
+
+        $mainFile = $this->dirname.'\\'.$filename;
+        $files[] = $mainFile;
+
+        // Si le cache à supprimer concerne une news, alors il faut supprimer les vues d'index et éventuellement les commentaires
+        if($this->type === 'news') {
+            $viewsDir = __DIR__.'\\..\\..\\tmp\\cache\\views\\';
+            $viewsFiles = glob($viewsDir.'*');
+            foreach ($viewsFiles as $viewsFile) {
+                $files[] = $viewsFile;
+            }
+
+            $commentsFile = $this->dirname.'\\comments-'.$filename;
+            $files[] = $commentsFile;
+        }
+
+        foreach ($files as $file) {
+            if(file_exists($file)) {
+                unlink($file);
+            }
+        }
+    }
+
+    /**
+     * Supprime le fichier si il a expiré
+     * @param $type string
+     * @param $id int
+     */
+    public function deleteExpired($type, $id)
     {
         $filename = $this
             ->setType($type)

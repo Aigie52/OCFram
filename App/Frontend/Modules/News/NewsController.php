@@ -4,6 +4,7 @@ namespace App\Frontend\Modules\News;
 
 use \OCFram\BackController;
 use OCFram\Cache;
+use OCFram\DataCache;
 use \OCFram\HTTPRequest;
 use \Entity\Comment;
 use \FormBuilder\CommentFormBuilder;
@@ -39,7 +40,9 @@ class NewsController extends BackController
 
     public function executeShow(HTTPRequest $request)
     {
+        // On tente de charger les données depuis le cache
         if (!($news = $this->cache->read('News', $request->getData('id')))) {
+            // S'il n'existe pas déjà, on les récupère en BDD et les passe en cache
             $news = $this->managers->getManagerOf('News')->getUnique($request->getData('id'));
             $this->cache->createCache('News', $request->getData('id'), $news);
         }
@@ -50,7 +53,6 @@ class NewsController extends BackController
 
         if (!($comments = $this->cache->read('Comments', $request->getData('id')))) {
             $comments = $this->managers->getManagerOf('Comments')->getListOf($news->id());
-
             if(!empty($comments)) {
                 $this->cache->createCache('Comments', $request->getData('id'), $comments);
             }

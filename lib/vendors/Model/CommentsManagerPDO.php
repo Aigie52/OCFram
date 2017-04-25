@@ -17,15 +17,15 @@ class CommentsManagerPDO extends CommentsManager
         $q->execute();
 
         $comment->setId($this->dao->lastInsertId());
-        $this->updateCache($comment->news());
+        $this->updateCache($this->getNewsId($comment->id()));
     }
 
     public function delete($id)
     {
-        $comment = $this->get($id);
-        $this->updateCache($comment->news());
-
+        $newsId = $this->getNewsId($id);
         $this->dao->exec('DELETE FROM comments WHERE id = ' . (int)$id);
+
+        $this->updateCache($newsId);
     }
 
     public function deleteFromNews($news)
@@ -63,7 +63,7 @@ class CommentsManagerPDO extends CommentsManager
         $q->bindValue(':id', $comment->id(), \PDO::PARAM_INT);
 
         $q->execute();
-        $this->updateCache($comment->news());
+        $this->updateCache($this->getNewsId($comment->id()));
     }
 
     public function get($id)
@@ -75,5 +75,15 @@ class CommentsManagerPDO extends CommentsManager
         $q->setFetchMode(\PDO::FETCH_CLASS | \PDO::FETCH_PROPS_LATE, '\Entity\Comment');
 
         return $q->fetch();
+    }
+
+    private function getNewsId($id)
+    {
+        $q = $this->dao->prepare('SELECT news FROM comments WHERE id = :id');
+        $q->bindValue(':id', (int)$id, \PDO::PARAM_INT);
+        $q->execute();
+
+        $news = $q->fetch();
+        return (int) $news['news'];
     }
 }

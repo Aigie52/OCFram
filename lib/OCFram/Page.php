@@ -18,6 +18,7 @@ class Page extends ApplicationComponent
 
     public function getGeneratedPage($view = null)
     {
+        // SI la vue existe déjà en cache, alors c'est celle-ci qu'on va afficher
         if (null !== $view) {
             ob_start();
             echo $view;
@@ -32,8 +33,9 @@ class Page extends ApplicationComponent
 
         extract($this->vars);
 
-        $index = '/index$/';
-        if(preg_match($index, $this->app->viewCache()->filename())) {
+        $frontIndex = '/^(frontend)[_][a-zA-Z]+[_](index)$/';
+        // Si la page est bien la page du front index, alors on commence "l'enregistrement" des infos pour pouvoir les passer au cache
+        if(preg_match($frontIndex, $this->app->viewCache()->filename())) {
             $this->app->viewCache()->start();
         } else {
             ob_start();
@@ -45,7 +47,7 @@ class Page extends ApplicationComponent
         ob_start();
         require __DIR__ . '/../../App/' . $this->app->name() . '/Templates/layout.php';
 
-        if(preg_match($index, $this->app->viewCache()->filename())) {
+        if(preg_match($frontIndex, $this->app->viewCache()->filename())) {
             return $this->app->viewCache()->end();
         }
         return ob_get_clean();

@@ -11,7 +11,7 @@ class Cache
     protected $filename;
 
     /**
-     * @param string $type
+     * @param $type string
      * @return Cache
      */
     protected function setType($type)
@@ -38,7 +38,7 @@ class Cache
     }
 
     /**
-     * @param int $id
+     * @param $name string
      * @return string
      */
     protected function setFilename($name)
@@ -49,13 +49,16 @@ class Cache
         return $this->filename = strtolower($name);
     }
 
+    /**
+     * @return string
+     */
     public function filename()
     {
         return $this->filename;
     }
 
     /**
-     * @param string $duration
+     * @param $duration string|null
      * @return Cache
      */
     protected function setDuration($duration)
@@ -92,7 +95,7 @@ class Cache
     }
 
     /**
-     * Créer le cache en fonction du type (vue), du nom de la vue, du contenu et de la durée (facultatif)
+     * Créer le cache en fonction du type, du nom de la vue, du contenu et de la durée (facultatif)
      * @param string $type
      * @param string $name
      * @param $content
@@ -121,10 +124,11 @@ class Cache
         return file_put_contents($file, serialize([$this->expiresAt(), $content]));
     }
 
+
     /**
-     * Lit le fichier en cache et renvoie le contenu si celui-ci existe
+     * Lit le fichier demandé
      * @param $type
-     * @param $id
+     * @param $name
      * @return bool
      */
     public function read($type, $name)
@@ -153,9 +157,11 @@ class Cache
     }
 
     /**
+     * Supprime le fichier concerné du cache
      * Supprime le fichier
      * @param $type string
-     * @param $id int
+     * @param $name string
+     * @internal param int $id
      * @internal param $filename
      */
     public function delete($type, $name)
@@ -171,4 +177,17 @@ class Cache
             unlink($file);
         }
     }
+
+    /**
+     * Supprime tous les fichiers du cache
+     */
+    public function clear()
+    {
+        $dir = __DIR__.'\\..\\..\\tmp\\cache\\';
+        $files = glob($dir.'*');
+        foreach ($files as $file) {
+            unlink($file);
+        }
+    }
+
 }

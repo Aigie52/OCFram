@@ -1,6 +1,3 @@
-<?php
-// TODO supprimer les parties mesurant le temps de chargement
-$time = microtime(TRUE); ?>
 <!DOCTYPE html>
 <html>
   <head>
@@ -38,11 +35,7 @@ $time = microtime(TRUE); ?>
         </section>
       </div>
     
-      <footer>
-          <?= $time ?><br>
-          <?= microtime(TRUE) ?><br>
-          <?= round(microtime(TRUE) - $time, 3); ?>s
-      </footer>
+      <footer></footer>
     </div>
   </body>
 </html>
