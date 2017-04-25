@@ -1,36 +1,31 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: aigie
- * Date: 27/03/2017
- * Time: 13:09
- */
-
 namespace App\Backend;
 
-
-use OCFram\Application;
+use \OCFram\Application;
 
 class BackendApplication extends Application
 {
+  public function __construct()
+  {
+    parent::__construct();
 
-    public function __construct()
+    $this->name = 'Backend';
+  }
+
+  public function run()
+  {
+    if ($this->user->isAuthenticated())
     {
-        parent::__construct();
-        $this->name = 'Backend';
+      $controller = $this->getController();
+    }
+    else
+    {
+      $controller = new Modules\Connexion\ConnexionController($this, 'Connexion', 'index');
     }
 
-    public function run()
-    {
-        if($this->user->isAuthenticated()){
-            $controller = $this->getController();
-        } else {
-            $controller = new Modules\Connexion\ConnexionController($this, 'Connexion', 'index');
-        }
+    $controller->execute();
 
-        $controller->execute();
-
-        $this->httpResponse->setPage($controller->page());
-        $this->httpResponse->send();
-    }
+    $this->httpResponse->setPage($controller->page());
+    $this->httpResponse->send();
+  }
 }
